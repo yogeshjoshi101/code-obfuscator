@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Advanced Code Obfuscator</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="data:,"> <!-- Add a blank favicon to avoid 404 error -->
+</head>
+<body>
+  <div class="container">
+    <h1>Advanced Code Obfuscator</h1>
+    <textarea id="codeInput" placeholder="Enter your Python code here..."></textarea>
+    <div class="buttons">
+      <button onclick="obfuscateCode()">Obfuscate</button>
+      <button onclick="deobfuscateCode()">De-Obfuscate</button>
+    </div>
+    <textarea id="output" readonly placeholder="Output appears here..."></textarea>
+    <input type="text" id="securityKey" placeholder="Enter security key here...">
+  </div>
+  <script src="js/api.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>
