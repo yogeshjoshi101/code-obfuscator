@@ -6,7 +6,8 @@ async function fetchObfuscate(code) {
       body: JSON.stringify({ code: code })
     });
     const data = await response.json();
-    displayOutput(data.obfuscated_code);
+    displayObfuscatedOutput(data.obfuscated_code);
+    displayOutput(data.obfuscated_encoded_code);
     displaySecurityKey(data.security_key);
   } catch (error) {
     console.error("Error during obfuscation:", error);
