@@ -1,158 +1,239 @@
-Advanced Code Obfuscator & De-Obfuscator: A Compiler-Based Approach to Secure Code Transformation
-1. Introduction
-1.1 Project Overview
-The Advanced Code Obfuscator & De-Obfuscator is a compiler-based tool designed to enhance the security of Python source code by transforming it into an obfuscated form that is difficult to reverse-engineer while retaining its functionality. The project addresses the growing need for intellectual property protection in software development by providing a secure, scalable, and user-friendly solution for code transformation.
+# Advanced Code Obfuscator & De-Obfuscator
 
-The system incorporates several advanced features, including:
+## Table of Contents
+1. [Introduction](#introduction)
+2. [Features](#features)
+3. [System Architecture](#system-architecture)
+4. [Workflow](#workflow)
+5. [Implementation Details](#implementation-details)
+6. [Codebase Structure](#codebase-structure)
+7. [API Reference](#api-reference)
+8. [Testing and Validation](#testing-and-validation)
+9. [Deployment](#deployment)
+10. [Contributing](#contributing)
+11. [License](#license)
 
-AST-based transformations for obfuscation.
-Base64 encoding for an additional layer of security.
-A security key mechanism to ensure only authorized users can reverse the obfuscation process.
-A mapping technique to securely store relationships between original and obfuscated code.
-This project is implemented as a web-based application using Flask, providing an intuitive interface for users to upload code for obfuscation or de-obfuscation.
+---
 
-2. Objectives
-The primary objectives of this project are:
+## Introduction
 
-To develop a secure and efficient tool for obfuscating Python source code.
-To implement a de-obfuscation mechanism that ensures only authorized users can retrieve the original code.
-To provide a user-friendly web interface for interacting with the system.
-To ensure the system is scalable and capable of handling large-scale codebases.
-To document the system comprehensively for ease of understanding and future development.
-3. System Architecture
-3.1 High-Level Design
-The system is designed with a modular architecture, consisting of the following components:
+The *Advanced Code Obfuscator & De-Obfuscator* is a professional-grade, compiler-based tool designed to enhance the security of Python source code. It transforms readable code into an obfuscated form that is difficult to reverse-engineer, while retaining its original functionality. This project addresses the growing need for intellectual property protection in software development by providing a secure, scalable, and user-friendly solution for code transformation.
 
-Frontend:
+---
 
-A static web interface for user interaction.
-Allows users to upload code for obfuscation or de-obfuscation and download the results.
-Backend:
+## Features
 
-A Flask-based application that handles the core functionality of obfuscation and de-obfuscation.
-Processes user inputs, performs transformations, and returns the results.
-Mapping System:
+- *AST-Based Obfuscation:* Uses Abstract Syntax Tree (AST) transformations for robust code obfuscation.
+- *Dead Code Insertion:* Randomly inserts non-functional code to confuse reverse engineers.
+- *String Literal Encoding:* Encodes string literals using Base64 and decodes them at runtime.
+- *Advanced Variable & Function Renaming:* Renames variables and functions to random, non-meaningful names.
+- *Comment Removal/Insertion:* Optionally removes or inserts misleading comments.
+- *Base64 Encoding:* Provides an additional layer of security by encoding the obfuscated code.
+- *Security Key Mechanism:* Generates a unique key for each obfuscation, required for de-obfuscation.
+- *Mapping System:* Securely stores the mapping between original and obfuscated code.
+- *Web-Based Interface:* User-friendly frontend for code upload, obfuscation, and de-obfuscation.
+- *Modular & Extensible:* Designed for easy extension and collaborative development.
 
-A JSON-based storage mechanism for mapping original and obfuscated code.
-Ensures secure and efficient retrieval of the original code during de-obfuscation.
-Security Key Mechanism:
+---
 
-A unique key is generated during the obfuscation process.
-The key is required to reverse the obfuscation process, ensuring only authorized users can access the original code.
-3.2 Workflow
-3.2.1 Obfuscation Process
-User uploads Python code via the web interface.
-The backend processes the code:
-Tokenizes the input code using a lexer.
-Converts the tokens into an Abstract Syntax Tree (AST).
-Applies obfuscation transformations to the AST.
-Encodes the transformed code using Base64.
-A unique security key is generated and stored along with the mapping in a JSON file.
-The obfuscated code is returned to the user.
-3.2.2 De-Obfuscation Process
-User uploads the obfuscated code and provides the security key via the web interface.
-The backend retrieves the mapping using the security key.
-The backend reverses the transformations:
-Decodes the Base64-encoded code.
-Reconstructs the original AST from the mapping.
-Generates the original source code from the AST.
-The original code is returned to the user.
-3.3 Detailed Architecture Diagram
+## System Architecture
 
-+-------------------+       +-------------------+       +-------------------+
-|                   |       |                   |       |                   |
-|     Frontend      | ----> |      Backend      | ----> |  Mapping System   |
-|                   |       |                   |       |                   |
-+-------------------+       +-------------------+       +-------------------+
+### High-Level Design
 
-4. Features
-4.1 Code Obfuscation
-Uses AST transformations to obfuscate Python code.
-Adds Base64 encoding for an additional layer of security.
-Ensures the obfuscated code is difficult to reverse-engineer.
-4.2 Code De-Obfuscation
-Reverses the obfuscation process using a mapping file and security key.
-Restores the original code while ensuring security.
-4.3 Security Key Mechanism
-Generates a unique key during the obfuscation process.
-Ensures only authorized users can de-obfuscate the code.
-4.4 Mapping System
-Securely stores relationships between original and obfuscated code in a JSON file.
-Ensures efficient and secure retrieval of the original code.
-4.5 Web-Based Interface
-User-friendly interface for uploading and downloading code.
-Provides clear feedback and error messages.
-5. Implementation Details
-5.1 Backend
-5.1.1 Framework
-Flask: A lightweight web framework for Python.
-5.1.2 Key Modules
-Lexer:
+The system is modular and consists of the following components:
 
-Tokenizes the input code into meaningful components.
-Parser:
+- *Frontend:*  
+  - Static web interface (HTML/CSS/JS) for user interaction.
+  - Allows users to input code, view obfuscated/encoded results, and manage security keys.
 
-Converts tokens into an Abstract Syntax Tree (AST).
-Transformer:
+- *Backend:*  
+  - Flask-based Python application.
+  - Handles code obfuscation, de-obfuscation, and mapping management.
 
-Applies obfuscation transformations to the AST.
-Generator:
+- *Mapping System:*  
+  - JSON-based storage for mapping security keys to original code.
 
-Converts the transformed AST back into source code.
-De-Obfuscator:
+- *Security Key Mechanism:*  
+  - Ensures only authorized users can de-obfuscate code.
 
-Reverses the transformations using the mapping and security key.
-5.2 Frontend
-Static HTML/CSS/JavaScript interface.
-Allows users to upload code files and interact with the backend APIs.
-5.3 Mapping System
-JSON-based storage for mapping original and obfuscated code.
-Ensures secure and efficient retrieval.
-5.4 Key Libraries
-Flask: For backend development.
-Flask-CORS: To enable cross-origin requests.
-astor: For AST manipulation and code generation.
-uuid: For generating unique security keys.
-Base64: For encoding obfuscated code.
-6. Codebase Structure
+### Architecture Diagram
 
-code-obfuscator/
+
++-----------+        +-----------+        +-------------------+
+| Frontend  | <----> |  Backend  | <----> |  Mapping System   |
++-----------+        +-----------+        +-------------------+
+
+
+---
+
+## Workflow
+
+### Obfuscation Process
+
+1. User submits Python code via the web interface.
+2. Backend performs:
+   - Lexical analysis (tokenization).
+   - Parsing to AST.
+   - AST transformations (obfuscation, dead code, string encoding, renaming).
+   - Code generation (obfuscated code).
+   - Base64 encoding (optional, for extra security).
+3. Backend returns:
+   - Obfuscated code (readable, but obfuscated).
+   - Obfuscated + encoded code (not directly readable/executable).
+   - Security key for de-obfuscation.
+4. User can copy/download both outputs.
+
+### De-Obfuscation Process
+
+1. User submits the encoded code and security key via the web interface.
+2. Backend retrieves the original code using the security key from the mapping system.
+3. Backend returns the original source code.
+
+---
+
+## Implementation Details
+
+### Backend
+
+- *Framework:* Flask (with Flask-CORS for cross-origin requests)
+- *Modules:*
+  - *Lexer:* Tokenizes input code.
+  - *Parser:* Converts code to AST.
+  - *Transformer:* Applies obfuscation (variable renaming, dead code, string encoding).
+  - *Generator:* Converts AST back to code, handles encoding.
+  - *De-Obfuscator:* Retrieves original code using the mapping and security key.
+  - *Utils:* Handles mapping storage and retrieval.
+
+### Frontend
+
+- *Technologies:* HTML, CSS, JavaScript
+- *Features:*
+  - Code input area.
+  - Buttons for obfuscation and de-obfuscation.
+  - Separate outputs for obfuscated and obfuscated+encoded code.
+  - Security key management.
+
+### Mapping System
+
+- *Storage:* JSON file (code_mapping.json)
+- *Function:* Maps security keys to original code for secure retrieval.
+
+### Key Libraries
+
+- Flask, Flask-CORS: Backend web framework and CORS support.
+- astor: AST manipulation and code generation.
+- uuid: Unique security key generation.
+- base64: String and code encoding.
+
+---
+
+## Codebase Structure
+
+
+code-obfuscator-main/
 │
 ├── backend/
 │   ├── app.py                # Flask application
-│   ├── obfuscator.py         # Obfuscation logic
-│   ├── deobfuscator.py       # De-obfuscation logic
-│   └── utils.py              # Utility functions
+│   ├── obfuscator/
+│   │   ├── lexer.py          # Lexical analysis
+│   │   ├── parser.py         # AST parsing
+│   │   ├── transformer.py    # AST transformations (obfuscation)
+│   │   ├── generator.py      # Code generation and encoding
+│   │   ├── deobfuscator.py   # De-obfuscation logic
+│   │   └── __init__.py
+│   └── utils.py              # Utility functions (mapping)
 │
-├── static/
-│   ├── index.html            # Frontend interface
-│   └── styles.css            # Frontend styling
+├── frontend/
+│   ├── index.html            # Web interface
+│   ├── css/
+│   │   └── styles.css        # Styling
+│   └── js/
+│       ├── script.js         # UI logic
+│       └── api.js            # API calls
 │
 ├── code_mapping.json         # JSON file for mapping
 ├── requirements.txt          # Python dependencies
 ├── run.py                    # Entry point for the application
-└── .gitignore                # Git ignore file
+├── .gitignore                # Git ignore file
+└── docs/
+    └── README.md             # Documentation
 
-7. Testing and Validation
-7.1 Unit Testing
-Tested individual modules for obfuscation, de-obfuscation, and mapping.
-Achieved 90% test coverage.
-7.2 Integration Testing
-Verified seamless communication between frontend and backend.
-7.3 Edge Case Testing
-Tested with large files and complex code structures.
-7.4 Security Validation
-Validated the security key mechanism and mapping file integrity.
-8. Pending Tasks
-Upgrade the obfuscation module to ensure Base64-encoded code remains executable.
-Conduct scalability testing for large-scale codebases.
-Finalize deployment on a cloud platform.
-Complete user guides and tutorials.
-9. Deployment Plan
-Platform: Cloud-based hosting (e.g., AWS, Azure, or Heroku).
-Steps:
-Containerize the application using Docker.
-Deploy the container to the chosen cloud platform.
-Configure secure API hosting with HTTPS.
-10. Conclusion
-The Advanced Code Obfuscator & De-Obfuscator provides a robust solution for secure code transformation, protecting intellectual property and sensitive logic. With its modular architecture, security features, and user-friendly interface, the system is well-suited for real-world applications. Pending tasks focus on refining the obfuscation module and deploying the system for public use.
+
+---
+
+## API Reference
+
+### POST /obfuscate
+
+- *Request:*  
+  json
+  { "code": "<python_source_code>" }
+  
+- *Response:*  
+  json
+  {
+    "obfuscated_code": "<obfuscated_python_code>",
+    "obfuscated_encoded_code": "<base64_encoded_obfuscated_code>",
+    "security_key": "<security_key>"
+  }
+  
+
+### POST /deobfuscate
+
+- *Request:*  
+  json
+  {
+    "code": "<obfuscated_encoded_code>",
+    "security_key": "<security_key>"
+  }
+  
+- *Response:*  
+  json
+  {
+    "deobfuscated_code": "<original_python_code>"
+  }
+  
+
+---
+
+## Testing and Validation
+
+- *Unit Testing:*  
+  - Each module (lexer, parser, transformer, generator, deobfuscator, utils) is unit tested.
+  - Achieved high test coverage.
+
+- *Integration Testing:*  
+  - Verified seamless communication between frontend and backend.
+
+- *Edge Case Testing:*  
+  - Tested with large files, complex code structures, and various Python constructs.
+
+- *Security Validation:*  
+  - Validated security key mechanism and mapping file integrity.
+
+---
+
+## Deployment
+
+- *Platform:* Cloud-based hosting (e.g., AWS, Azure, Heroku)
+- *Steps:*
+  1. Containerize the application using Docker.
+  2. Deploy the container to the chosen cloud platform.
+  3. Configure secure API hosting with HTTPS.
+  4. Set up environment variables and persistent storage for mappings.
+
+---
+
+## Contributing
+
+Contributions are welcome!  
+- Please fork the repository and submit pull requests.
+- Follow PEP8 coding standards and write clear docstrings/comments.
+- Add tests for new features and bug fixes.
+
+---
+
+## License  
+See [LICENSE](../LICENSE) for details.
+
+---
