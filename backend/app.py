@@ -8,6 +8,7 @@ from .obfuscator.transformer import transform_ast
 from .obfuscator.generator import generate_obfuscated_code
 from .obfuscator.deobfuscator import deobfuscate_code
 from .utils import save_mapping, load_mapping
+import astor
 
 app = Flask(__name__, static_folder=os.path.join(os.getcwd(), 'frontend'))
 CORS(app)  # Enable CORS for API calls
@@ -29,14 +30,23 @@ def obfuscate():
     # Transformation: Obfuscate the AST
     transformed_ast = transform_ast(ast_tree)
     
-    # Code Generation: Convert AST back to source code and encode it
-    obfuscated_code = generate_obfuscated_code(transformed_ast)
+    # Code Generation: Convert AST back to source code (obfuscated, not encoded)
+    obfuscated_code = astor.to_source(transformed_ast)
+    if 'import base64' not in obfuscated_code:
+        obfuscated_code = 'import base64\n' + obfuscated_code
+
+    # Encoded version (obfuscated + encoded)
+    obfuscated_encoded_code = generate_obfuscated_code(transformed_ast)
     
     # Generate a security key and save the mapping
     security_key = str(uuid.uuid4())
     save_mapping(security_key, source_code)
     
-    return jsonify({"obfuscated_code": obfuscated_code, "security_key": security_key})
+    return jsonify({
+        "obfuscated_code": obfuscated_code,
+        "obfuscated_encoded_code": obfuscated_encoded_code,
+        "security_key": security_key
+    })
 
 @app.route("/deobfuscate", methods=["POST"])
 def deobfuscate():
