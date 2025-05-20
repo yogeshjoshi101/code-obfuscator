@@ -2,6 +2,10 @@ function displayOutput(result) {
   document.getElementById("output").value = result;
 }
 
+function displayObfuscatedOutput(result) {
+  document.getElementById("obfuscatedOutput").value = result;
+}
+
 function displaySecurityKey(key) {
   alert("Security Key: " + key);
 }
