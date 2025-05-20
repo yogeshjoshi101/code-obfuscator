@@ -5,9 +5,6 @@ import base64
 
 # --- Variable Renamer (Member 1) ---
 class VariableRenamer(ast.NodeTransformer):
-    """
-    Renames variables and function names to random strings.
-    """
     def __init__(self):
         self.mapping = {}
 
