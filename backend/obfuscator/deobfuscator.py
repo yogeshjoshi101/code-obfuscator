@@ -1,12 +1,20 @@
 import base64
+import json
+from .transformer import deobfuscate_pipeline
 
-def deobfuscate_code(obfuscated_code):
+# Fix import for utils (relative import)
+from ..utils import decrypt_meta
+
+def deobfuscate_code(obfuscated_code, key=""):
     """
-    Reverses the Base64 encoding to retrieve the obfuscated Python source.
-    (Note: This does not reverse the AST transformation.)
+    Fully reverses all obfuscation steps using stored meta.
     """
     try:
-        decoded = base64.b64decode(obfuscated_code.encode('utf-8')).decode('utf-8')
-        return decoded
+        decoded = base64.b64decode(obfuscated_code.encode()).decode()
+        payload = json.loads(decoded)
+        code = payload['code']
+        encrypted_meta = payload.get('meta', "")
+        meta = decrypt_meta(encrypted_meta, key)
+        return deobfuscate_pipeline(code, meta)
     except Exception as e:
         return f"Deobfuscation failed: {str(e)}"
