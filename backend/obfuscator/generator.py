@@ -1,15 +1,19 @@
-import astor
 import base64
+import json
+from .transformer import obfuscate_pipeline
 
-def generate_obfuscated_code(ast_tree):
+# Fix import for utils (relative import)
+from ..utils import encrypt_meta
+
+def generate_obfuscated_code(source_code, features=None, key=""):
     """
-    Converts the transformed AST back into Python source code
-    and then applies an extra layer of obfuscation (Base64 encoding).
-    Ensures 'import base64' is present for runtime string decoding.
+    Obfuscates code and encodes it with meta for deobfuscation.
     """
-    # Insert 'import base64' at the top if not present
-    source_code = astor.to_source(ast_tree)
-    if 'import base64' not in source_code:
-        source_code = 'import base64\n' + source_code
-    encoded = base64.b64encode(source_code.encode('utf-8')).decode('utf-8')
+    obf_code, meta = obfuscate_pipeline(source_code, features)
+    encrypted_meta = encrypt_meta(meta, key)
+    payload = {
+        'code': obf_code,
+        'meta': encrypted_meta
+    }
+    encoded = base64.b64encode(json.dumps(payload).encode()).decode()
     return encoded
