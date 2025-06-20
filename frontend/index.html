@@ -3,22 +3,65 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Advanced Code Obfuscator</title>
+  <title>Code Obfuscator & Deobfuscator</title>
   <link rel="stylesheet" href="css/styles.css">
-  <link rel="icon" href="data:,"> <!-- Add a blank favicon to avoid 404 error -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:,"/>
 </head>
 <body>
-  <div class="container">
-    <h1>Advanced Code Obfuscator</h1>
-    <textarea id="codeInput" placeholder="Enter your Python code here..."></textarea>
-    <div class="buttons">
-      <button onclick="obfuscateCode()">Obfuscate</button>
-      <button onclick="deobfuscateCode()">De-Obfuscate</button>
+  <div class="glass-header">
+    <div class="header-title">
+      <span class="header-icon">🛡️</span>
+      <span>Code Obfuscator & Deobfuscator</span>
     </div>
-    <textarea id="obfuscatedOutput" readonly placeholder="Obfuscated code (not encoded) appears here..."></textarea>
-    <textarea id="output" readonly placeholder="Obfuscated + Encoded code appears here..."></textarea>
-    <input type="text" id="securityKey" placeholder="Enter security key here...">
+    <div class="header-actions">
+      <button class="icon-btn" id="clearBtn" title="Clear"><span>🧹</span></button>
+      <button class="icon-btn" id="toggleEditBtn" title="Toggle Output Edit"><span id="toggleEditIcon">🔒</span></button>
+    </div>
   </div>
+  <main class="main-glass">
+    <section class="panel panel-left">
+      <div class="panel-title">Input Python Code</div>
+      <div class="editor-wrap">
+        <textarea id="codeInput" class="editor" spellcheck="false" placeholder="Paste or write your Python code here..."></textarea>
+      </div>
+      <div class="key-wrap">
+        <label for="obfKey" class="key-label">Obfuscation/Deobfuscation Key:</label>
+        <input type="password" id="obfKey" class="key-input" placeholder="Enter a key (required)">
+      </div>
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="fileInput" accept=".py">
+        <label for="fileInput" class="upload-label">
+          <span class="upload-icon">📄</span>
+          <span id="uploadText">Drag & drop or click to upload .py file</span>
+        </label>
+        <span id="filePreview" class="file-preview"></span>
+      </div>
+    </section>
+    <section class="panel panel-right">
+      <div class="panel-title">Output</div>
+      <div class="editor-wrap">
+        <textarea id="output" class="editor" spellcheck="false" readonly placeholder="Obfuscated/Deobfuscated code will appear here..."></textarea>
+      </div>
+      <div class="deobf-string-wrap">
+        <label for="deobfString" class="deobf-label">Deobfuscation String (Base64, keep this safe!):</label>
+        <textarea id="deobfString" class="deobf-string" readonly placeholder="Obfuscation string will appear here..."></textarea>
+        <button class="action-btn" id="copyDeobfBtn" title="Copy Deobfuscation String" style="margin-top:8px;"><span>📋</span> Copy String</button>
+      </div>
+      <div class="key-wrap">
+        <label for="deobfKey" class="key-label">Obfuscation/Deobfuscation Key:</label>
+        <input type="password" id="deobfKey" class="key-input" placeholder="Enter the key used for obfuscation">
+      </div>
+      <div class="panel-actions">
+        <button class="action-btn" id="obfuscateBtn" title="Obfuscate"><span>🕵️‍♂️</span> Obfuscate</button>
+        <button class="action-btn" id="deobfuscateBtn" title="Deobfuscate"><span>🔓</span> Deobfuscate</button>
+        <button class="action-btn" id="downloadBtn" title="Download"><span>⬇️</span> Download</button>
+      </div>
+    </section>
+  </main>
+  <div id="toast" class="toast"></div>
   <script src="js/api.js"></script>
   <script src="js/script.js"></script>
 </body>
