@@ -1,65 +1,111 @@
 import os
-import uuid
-from flask import Flask, request, jsonify, send_from_directory
+import tempfile
+import logging
+from flask import Flask, request, jsonify, send_from_directory, send_file
 from flask_cors import CORS
 from .obfuscator.lexer import tokenize_code
 from .obfuscator.parser import parse_ast
-from .obfuscator.transformer import transform_ast
 from .obfuscator.generator import generate_obfuscated_code
 from .obfuscator.deobfuscator import deobfuscate_code
-from .utils import save_mapping, load_mapping
-import astor
 
 app = Flask(__name__, static_folder=os.path.join(os.getcwd(), 'frontend'))
 CORS(app)  # Enable CORS for API calls
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
 
 # API endpoints
 @app.route("/obfuscate", methods=["POST"])
 def obfuscate():
     data = request.json
     source_code = data.get("code", "")
-    
+    features = data.get("features", None)
+    key = data.get("key", "")
+    if not isinstance(source_code, str) or not source_code.strip():
+        logging.warning("No code provided for obfuscation.")
+        return jsonify({"error": "No code provided"}), 400
+    if not key or not isinstance(key, str):
+        return jsonify({"error": "Key is required for obfuscation"}), 400
+
     # Lexical Analysis (optional for debugging)
     tokens = tokenize_code(source_code)
-    
+
     # Parsing: Build the AST from source code
     ast_tree = parse_ast(source_code)
     if ast_tree is None:
+        logging.warning("Syntax error in source code.")
         return jsonify({"error": "Syntax Error in source code"}), 400
-    
-    # Transformation: Obfuscate the AST
-    transformed_ast = transform_ast(ast_tree)
-    
-    # Code Generation: Convert AST back to source code (obfuscated, not encoded)
-    obfuscated_code = astor.to_source(transformed_ast)
-    if 'import base64' not in obfuscated_code:
-        obfuscated_code = 'import base64\n' + obfuscated_code
 
-    # Encoded version (obfuscated + encoded)
-    obfuscated_encoded_code = generate_obfuscated_code(transformed_ast)
-    
-    # Generate a security key and save the mapping
-    security_key = str(uuid.uuid4())
-    save_mapping(security_key, source_code)
-    
-    return jsonify({
-        "obfuscated_code": obfuscated_code,
-        "obfuscated_encoded_code": obfuscated_encoded_code,
-        "security_key": security_key
-    })
+    try:
+        # Code Generation: Obfuscate and encode
+        obfuscated_code = generate_obfuscated_code(source_code, features, key)
+        return jsonify({"obfuscated_code": obfuscated_code})
+    except Exception as e:
+        logging.error(f"Obfuscation failed: {e}")
+        return jsonify({"error": "Obfuscation failed"}), 500
 
 @app.route("/deobfuscate", methods=["POST"])
 def deobfuscate():
     data = request.json
     obfuscated_code = data.get("code", "")
-    security_key = data.get("security_key", "")
-    
-    # Load the original code using the security key
-    original_code = load_mapping(security_key)
-    if original_code is None:
-        return jsonify({"error": "Invalid security key"}), 400
-    
-    return jsonify({"deobfuscated_code": original_code})
+    key = data.get("key", "")
+    if not isinstance(obfuscated_code, str) or not obfuscated_code.strip():
+        logging.warning("No code provided for deobfuscation.")
+        return jsonify({"error": "No code provided"}), 400
+    if not key or not isinstance(key, str):
+        return jsonify({"error": "Key is required for deobfuscation"}), 400
+    try:
+        readable_code = deobfuscate_code(obfuscated_code, key)
+        return jsonify({"deobfuscated_code": readable_code})
+    except Exception as e:
+        logging.error(f"Deobfuscation failed: {e}")
+        return jsonify({"error": "Deobfuscation failed"}), 500
+
+@app.route("/features", methods=["GET"])
+def features():
+    return jsonify({
+        "features": [
+            "rename_identifiers",
+            "encode_strings",
+            "dead_code",
+            "junk_code",
+            "minify",
+            "strip_comments"
+        ]
+    })
+
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({"status": "ok"})
+
+@app.route("/upload", methods=["POST"])
+def upload():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+    file = request.files['file']
+    if file.filename == '' or not file.filename.endswith('.py'):
+        return jsonify({"error": "Invalid file"}), 400
+    code = file.read().decode('utf-8')
+    return jsonify({"code": code})
+
+@app.route("/download", methods=["POST"])
+def download():
+    data = request.json
+    code = data.get("code", "")
+    filename = data.get("filename", "output.py")
+    # Use a secure temporary file in the backend directory
+    temp_dir = os.path.dirname(os.path.abspath(__file__))
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", dir=temp_dir, delete=False, encoding="utf-8") as tmp:
+        tmp.write(code)
+        tmp_path = tmp.name
+    try:
+        return send_file(tmp_path, as_attachment=True, download_name=filename)
+    finally:
+        # Clean up the temp file after sending
+        try:
+            os.remove(tmp_path)
+        except Exception:
+            pass
 
 # Serve the frontend index.html at the root
 @app.route('/')
@@ -72,4 +118,5 @@ def serve_static(path):
     return send_from_directory(os.path.join(os.getcwd(), 'frontend'), path)
 
 if __name__ == "__main__":
+    app.run(debug=True)
     app.run(debug=True)
