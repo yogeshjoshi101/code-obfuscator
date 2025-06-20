@@ -1,27 +1,22 @@
+import base64
 import json
-import os
-
-MAPPING_FILE = os.path.join(os.getcwd(), "code_mapping.json")
-
-def save_mapping(security_key, original_code):
-    if os.path.exists(MAPPING_FILE):
-        with open(MAPPING_FILE, "r") as file:
-            mappings = json.load(file)
-    else:
-        mappings = {}
-    
-    mappings[security_key] = original_code
-    
-    with open(MAPPING_FILE, "w") as file:
-        json.dump(mappings, file)
-
-def load_mapping(security_key):
-    if not os.path.exists(MAPPING_FILE):
-        return None
-    
-    with open(MAPPING_FILE, "r") as file:
-        mappings = json.load(file)
-    
-    return mappings.get(security_key)
 
 # This module can host additional utility functions as needed.
+
+# Ensure this file is in the backend package root (not inside obfuscator)
+def xor_encrypt(data: str, key: str) -> str:
+    key = (key * ((len(data) // len(key)) + 1))[:len(data)]
+    return ''.join(chr(ord(a) ^ ord(b)) for a, b in zip(data, key))
+
+def encrypt_meta(meta, key):
+    meta_json = json.dumps(meta)
+    encrypted = xor_encrypt(meta_json, key)
+    return base64.b64encode(encrypted.encode()).decode()
+
+def decrypt_meta(enc_meta, key):
+    try:
+        encrypted = base64.b64decode(enc_meta.encode()).decode()
+        decrypted = xor_encrypt(encrypted, key)
+        return json.loads(decrypted)
+    except Exception:
+        return {}
